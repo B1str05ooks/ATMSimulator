@@ -53,7 +53,7 @@ public class ATMSimulator
 
                     if(attempts == 3)
                     {
-                        System.out.println("Card blocked. Contact your bank.");
+                        showError(ATMError.ACCOUNT_BLOCKED);
 
                         running = exit();
 
@@ -62,8 +62,10 @@ public class ATMSimulator
                 }
                 catch (NoSuchElementException e)
                 {
-                    System.out.println("Input Error, Please restart the ATM");
+                    showError(ATMError.INPUT_STREAM_ERROR);
+
                     running = false;
+
                     break;
                 }
 
@@ -92,7 +94,9 @@ public class ATMSimulator
 
                         case 4 -> running = exit();
 
-                        default -> System.out.println("Please choose the correct services");
+                        //case 5 ->
+
+                        default -> showError(ATMError.INVALID_MENU_CHOICE);
                     }
                 }
                 catch (InputMismatchException e)
@@ -202,14 +206,14 @@ public class ATMSimulator
 
                 if (amount <= 0)
                 {
-                    System.out.println("Amount must be greater than zero");
+                    showError(ATMError.INVALID_AMOUNT);
                 } else
                 {
                     return amount;
                 }
             } catch (InputMismatchException e)
             {
-                System.out.println("Invalid input. Please enter a number: ");
+                showError(ATMError.INVALID_INPUT);
                 sc.next();
             }
         }
@@ -224,5 +228,10 @@ public class ATMSimulator
 
         System.out.println("Balance: " + finalBalance);
 
+    }
+
+    static void showError(ATMError error)
+    {
+        System.out.println(error.getMessage());
     }
 }
