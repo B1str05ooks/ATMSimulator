@@ -190,7 +190,7 @@ public class ATMSimulator
     {
         System.out.println("Withdrawals occurs in multiples of $50: ");
 
-        System.out.print("How much would you like to withdraw?");
+        System.out.println("How much would you like to withdraw?");
 
         double withdraw = getValidAmount(sc);
 
