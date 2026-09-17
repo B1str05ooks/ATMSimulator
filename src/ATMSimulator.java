@@ -282,6 +282,17 @@ public class ATMSimulator
         }
     }
 
+    static String maskAccount(String accountNumber)
+    {
+        int length = accountNumber.length();
+
+
+        String stars = "*".repeat(length - 4);
+        String lastFour = accountNumber.substring(length - 4);
+
+        return stars + lastFour;
+    }
+
 
     static void FormattedBalance(double balance)
     {
