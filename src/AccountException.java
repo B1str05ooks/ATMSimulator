@@ -1,10 +1,10 @@
-public class AccountException
+public class AccountException extends RuntimeException
 {
     private final ATMError error;
 
     public AccountException(ATMError error)
     {
-        super();
+        super(error.getMessage());
         this.error = error;
     }
 

@@ -40,7 +40,7 @@ public abstract class Account
         return balance;
     }
 
-    public String getAcountNumber()
+    public String getAccountNumber()
     {
         return accountNumber;
     }
