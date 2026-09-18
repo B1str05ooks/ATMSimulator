@@ -1,4 +1,3 @@
-import javax.security.auth.login.AccountException;
 import java.util.*;
 
 /*
@@ -32,6 +31,8 @@ public class ATM
             System.out.println("Welcome to the ATM");
 
             Account account = login();
+
+            running = (account != null) && menu(account);
         }
 
 
@@ -189,9 +190,9 @@ public class ATM
                 System.out.println(ATMError.BELOW_MINIMUM_BALANCE.getMessage());
             }
 
-        }catch(AccountException ex)
+        }catch(AccountException e)
         {
-            System.out.println(ex.getMessage());
+            System.out.println(e.getMessage());
 
             System.out.println("Balance: " + account.getFormattedBalance());
         }
