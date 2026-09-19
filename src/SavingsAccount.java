@@ -37,31 +37,27 @@ public class SavingsAccount extends Account implements Interest
 
         if(cents % (DENOMINATION * 100) != 0 )
         {
-            //throw invalid denomination exception
+            throw new AccountException(ATMError.INVALID_AMOUNT);
         }
 
         if(dailyWithdrawn + amount > dailyWithdrawalLimit)
         {
-            //throw daily limit exceeded exception
+            throw new AccountException(ATMError.INVALID_DENOMINATION);
         }
 
         if(balance - amount < minimumBalance)
         {
-            //throw insufficient funds exception
+            throw new AccountException(ATMError.BELOW_MINIMUM_BALANCE);
         }
 
         balance -= amount;
 
         dailyWithdrawn += amount;
+
+        addToHistory("WITHDRAWAL", amount);
     }
 
     //GETTERS AND SETTERS
-
-    // Always call at the start of every day to reset withdrawn balance
-    public void resetDailyWithdrawn()
-    {
-        dailyWithdrawn = 0.0;
-    }
 
     public double getDailyWithdrawn()
     {
@@ -89,8 +85,20 @@ public class SavingsAccount extends Account implements Interest
     @Override
     public void applyInterest()
     {
-        balance += balance * interestRate;
+        double interest = balance * interestRate;
+
+        balance += interest;
+
+        addToHistory("INTEREST", interest);
+
     }
+
+    // Always call at the start of every day to reset withdrawn balance
+    public void resetDailyWithdrawn()
+    {
+        dailyWithdrawn = 0.0;
+    }
+
 
 
 }

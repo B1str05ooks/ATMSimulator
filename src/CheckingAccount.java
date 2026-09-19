@@ -22,15 +22,22 @@ public class CheckingAccount extends Account
     {
         if(amount <= 0)
         {
-            //throw Account exception
+            throw new AccountException(ATMError.INVALID_AMOUNT);
         }
 
         if(balance - amount < -overdraftLimit)
         {
-            //throw Account exception
+            throw new AccountException(ATMError.INSUFFICIENT_FUNDS);
         }
 
         balance -= amount;
+
+        addToHistory("WITHDRAWAL", amount);
+
+        if (balance < 0)
+        {
+            System.out.printf(" Overdraft used. Current balance: %s", getFormattedBalance());
+        }
     }
 
     //Getters & Setters

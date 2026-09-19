@@ -26,7 +26,36 @@ public final class InputValidator
             {
                 System.out.println(ATMError.INVALID_INPUT.getMessage());
 
-                sc.next();
+                sc.nextLine();
+            }
+        }
+    }
+
+
+    public static int getValidMenuChoice(Scanner sc, int min, int max)
+    {
+        while (true)
+        {
+            try
+            {
+                int choice = sc.nextInt();
+
+                sc.nextLine();
+
+                if (choice >= min && choice <= max)
+                {
+                    return choice;
+                }
+                System.out.printf("  Please choose between %d and %d: ", min, max);
+
+            }catch (InputMismatchException e)
+            {
+                sc.nextLine();
+
+                System.out.println(ATMError.INVALID_INPUT.getMessage());
+
+                System.out.printf("  Try again (%d-%d): ", min, max);
+
             }
         }
     }

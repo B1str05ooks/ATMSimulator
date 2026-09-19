@@ -24,23 +24,30 @@ public class ATM
 
     public void run()
     {
+        printBanner();
+
         boolean running = true;
 
         while(running)
         {
-            System.out.println("Welcome to the ATM");
-
             Account account = login();
 
-            running = (account != null) && menu(account);
+            if (account == null)
+            {
+                running = false;
+            }
+            else
+            {
+                running = menu(account);
+            }
         }
-
-
     }
 
     private Account login()
     {
         int attempts = 0;
+
+        System.out.println("Welcome to the ATM!\n");
 
         while (attempts < 3)
         {
@@ -110,23 +117,29 @@ public class ATM
     private boolean menu(Account account) {
         boolean loggedIn = true;
 
-        while (loggedIn) {
+        while (loggedIn)
+        {
+            printMenuHeader(account);
+
             System.out.println("Please choose the following options:");
             System.out.println("1: Check Balance");
             System.out.println("2: Deposit");
             System.out.println("3: Withdraw");
-            System.out.println("4: Exit");
+            System.out.println("4: Transfer");
+            System.out.println("5: Transaction History");
+            System.out.println("6: Logout");
+            System.out.print("Select an option:  ");
 
             try {
-                int selection = sc.nextInt();
-                sc.nextLine();
+                int selection = InputValidator.getValidMenuChoice(sc, 1, 7);
+
 
                 switch (selection) {
                     case 1 -> showBalance(account);
                     case 2 -> deposit(account);
                     case 3 -> withdraw(account);
-                    // case 4 -> transactionHistory();
-                    // case 5 -> printReceipt();
+                    case 4 -> transfer(account);
+                    case 5 -> account.printStatement();
                     case 6 -> loggedIn = false;
                     default -> System.out.println(ATMError.INVALID_MENU_CHOICE.getMessage());
                 }
@@ -144,6 +157,7 @@ public class ATM
                 return false;
             }
         }
+        bank.saveBalances("accounts.dat");
 
         printGoodbye();
 
@@ -182,7 +196,7 @@ public class ATM
         {
             account.withdraw(amount);
 
-            System.out.println("Balance: " + account.getFormattedBalance());
+            account.printReceipt("WITHDRAWAL", amount);
 
             if (account instanceof SavingsAccount savings &&
                     savings.getBalance() <= savings.getMinimumBalance())
@@ -196,6 +210,83 @@ public class ATM
 
             System.out.println("Balance: " + account.getFormattedBalance());
         }
+    }
+
+    private void transfer(Account account)
+    {
+        System.out.println("\n── TRANSFER ──────────────────────────────");
+        System.out.printf ("  Current Balance: %s%n%n", account.getFormattedBalance());
+        System.out.print  ("  Enter destination account number: ");
+
+        String destNumber = sc.nextLine().trim();
+
+        // Cannot transfer to yourself
+        if (destNumber.equals(account.getAccountNumber()))
+        {
+            System.out.println(ATMError.TRANSFER_SAME_ACCOUNT.getMessage() + "\n");
+            return;
+        }
+
+        Optional<Account> destFound = bank.findAccount(destNumber);
+
+        if (destFound.isEmpty())
+        {
+            System.out.println(ATMError.DESTINATION_NOT_FOUND.getMessage() + "\n");
+            return;
+        }
+
+        Account destination = destFound.get();
+
+        System.out.printf("  Sending to: %s (%s)%n%n",
+                destination.getOwnerName(),
+                destination.getMaskedAccountNumber());
+        System.out.print("  Amount to transfer: $");
+
+        double amount = InputValidator.getValidAmount(sc);
+
+        try
+        {
+            // Withdraw from source — uses that account's rules
+            account.withdraw(amount);
+
+            // Deposit into destination — always valid if amount > 0
+            destination.deposit(amount);
+
+            System.out.println("\n✓ Transfer successful!");
+            System.out.printf ("  Sent %s to %s%n",
+                    (amount),
+                    destination.getOwnerName());
+            System.out.printf ("  Your new balance: %s%n%n",
+                    account.getFormattedBalance());
+        }
+        catch (AccountException e)
+        {
+            System.out.println(e.getMessage() + "\n");
+            System.out.printf("  Balance unchanged: %s%n%n",
+                    account.getFormattedBalance());
+        }
+    }
+
+
+    private void printBanner()
+    {
+        System.out.println("╔══════════════════════════════════════════╗");
+        System.out.println("║                                          ║");
+        System.out.println("║          W E L C O M E   T O             ║");
+        System.out.println("║              THE     A T M               ║");
+        System.out.println("║                                          ║");
+        System.out.println("╚══════════════════════════════════════════╝");
+        System.out.println("  Secure  ·  Reliable  ·  Always Available\n");
+    }
+
+    private void printMenuHeader(Account account)
+    {
+        System.out.println("\n╔══════════════════════════════════════════╗");
+        System.out.println("║             M A I N   M E N U              ║");
+        System.out.println("╠════════════════════════════════════════════╣");
+        System.out.printf ("║  %-18s %-23s║%n", "Account Holder:", account.getOwnerName());
+        System.out.printf ("║  %-18s %-23s║%n", "Account:",        account.getMaskedAccountNumber());
+        System.out.println("╚══════════════════════════════════════════╝\n");
     }
 
     private void printGoodbye()
